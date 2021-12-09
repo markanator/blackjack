@@ -1,8 +1,8 @@
 CC = g++
 CFLAGS = -I. -Wall -Wextra -Werror -g -pedantic -std=c++11 -fbounds-check -O2
-DEPS = utils.h
-OBJ =
-MAIN =  main.o
+DEPS = utils.h Game.h Card.h
+OBJ = Game.o Card.o
+MAIN = main.o
 TEST = test.o
 
 %.o: %.cpp $(DEPS)
