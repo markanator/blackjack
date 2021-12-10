@@ -1,3 +1,8 @@
+// Created by Mark on 12/8/2021.
+// tutoring help from: Jesus Ambrocio (my brother)
+// and past c# card projects
+//
+
 #include "Game.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,6 +44,7 @@ int main() {
         }
         totGames--;
     }
+    // win rates are skewed in favor of the house
     printf("\n\nFinal Scores:\n");
     printf("House: %d\n", houseWins);
     printf("Guest: %d\n", playerWins);
