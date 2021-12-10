@@ -7,13 +7,18 @@
 #include "Game.h"
 #include "Card.h"
 
-
+// constants
 static char PLAYER_KEY = 'P';
 static char DEALER_KEY = 'D';
 
-// scope resolution modifier
+// using scope resolution modifier
+// constructor
 Game::Game() { }
+
+// base house deck size
 int Game::numCards = 52;
+
+// all cards in the game
 Card *Game::gameDeck[] = { NULL,
    new Card("A",'C'), new Card("A",'D'), new Card("A",'H'), new Card("A",'S'),
    new Card("2",'C'), new Card ("2",'D'), new Card("2",'H'), new Card("2",'S'),
@@ -29,9 +34,11 @@ Card *Game::gameDeck[] = { NULL,
    new Card("Q",'C'), new Card ("Q",'D'), new Card("Q",'H'), new Card("Q",'S'),
    new Card("K",'C'), new Card ("K",'D'), new Card("K",'H'), new Card("K",'S')
 };
+
 // create empty hands
 Card *Game::dealerHand[53];
 Card *Game::playerHand[53];
+
 // ** MAIN METHODS ** //
 void Game::start() {
 //    initialize random seed
@@ -39,22 +46,30 @@ void Game::start() {
     shuffle();
     clearHand();
 }
+
 int Game::getRandomNum(int len) {
-    double numA;
+    // max number converted to double
     static double numB = (double) RAND_MAX + 1.0;
-    numA = (double) rand()/numB;
+    // random number
+    double numA = (double) rand()/numB;
     // gets rando num between 1 to length arg
     return (int)len * numA + 1;
 }
+
 void Game::shuffle() {
     // set number of cards back to normal
+    // prevents segmentation fault
     Game::numCards = 52;
 }
+
+// simple card swap method
 void Game::swapCards(int x, int y) {
     Card * temp = gameDeck[x];
     gameDeck[x] = gameDeck[y];
     gameDeck[y] = temp;
 }
+
+// return total card count for X Entity
 int Game::handSize(char plyr) {
     int cardCounter = 0;
     if (plyr == PLAYER_KEY) {
@@ -70,50 +85,72 @@ int Game::handSize(char plyr) {
 
     return cardCounter;
 }
+
+// deal cards to entity
 void Game::deal(int amount, char plyr) {
+    // position that will be used through func
     int posA;
     if (plyr == PLAYER_KEY) {
+        // marks end of player hand for gameplay
         playerHand[handSize(PLAYER_KEY) + amount] = NULL;
+        // loop to work down amount to zero
         while(amount) {
-            // pre-decrement to get result
+            // (pre-)decrement and get result
             int newHandIndex = --amount + handSize(PLAYER_KEY);
-            int rngDeckCardIndex = posA = getRandomNum(numCards);
-            playerHand[newHandIndex] = gameDeck[rngDeckCardIndex];
+            // rng position from current deck length
+            posA = getRandomNum(numCards);
+            // assign houseDeck card to playerhand position
+            playerHand[newHandIndex] = gameDeck[posA];
+            // swap cards
             swapCards(posA, numCards--);
         }
     }
     else {
+        // marks end of player hand for gameplay
         dealerHand[handSize(DEALER_KEY) + amount] = NULL;
+        // loop to work down amount to zero
         while(amount) {
-            // pre-decrement to get result
+            // (pre-)decrement and get result
             int newHandIndex = --amount + handSize(DEALER_KEY);
-            int rngDeckCardIndex = posA = getRandomNum(numCards);
-            dealerHand[newHandIndex] = gameDeck[rngDeckCardIndex];
+            // rng position from current deck length
+            posA = getRandomNum(numCards);
+            // assign houseDeck card to playerhand position
+            dealerHand[newHandIndex] = gameDeck[posA];
+            // swap cards
             swapCards(posA, numCards--);
         }
     }
 }
+
+// returns gameValue of current hand for x player
 int Game::handValue(char plyr) {
-    char type;
+    // card type
+    char cardType;
+    // shared counters
     int handVal = 0, aceCount = 0, idx = 0;
     if (plyr == PLAYER_KEY) {
         while (playerHand[idx++]) {
             // get first char of string
-            type = playerHand[idx - 1]->cardValue[0];
-            if (type == '1' || type == 'J' || type == 'Q' || type == 'K') {
-                // award points
+            cardType = playerHand[idx - 1]->cardValue[0];
+            // award points
+            if (cardType == '1' ||
+                cardType == 'J' ||
+                cardType == 'Q' ||
+                cardType == 'K'
+            ) {
                 handVal += 10;
             }
-            if (type == 'A') {
-                // aceCounter... nice!
+            // aceCounter... nice!?
+            if (cardType == 'A') {
                 handVal += 11;
                 ++aceCount;
             }
-            if (isdigit(type) && (type != '1')) {
-                // catch edge case
-                handVal += (type - '0');
+            // catch all other numbers
+            if (isdigit(cardType) && (cardType != '1')) {
+                handVal += (cardType - '0');
             }
         }
+        // subtract aces from count
         while (aceCount--) {
             if (handVal > 21) {
                 handVal -= 10;
@@ -124,21 +161,26 @@ int Game::handValue(char plyr) {
     else {
         while (dealerHand[idx++]) {
             // get first char of string
-            type = dealerHand[idx - 1]->cardValue[0];
-            if (type == '1' || type == 'J' || type == 'Q' || type == 'K') {
-                // award points
+            cardType = dealerHand[idx - 1]->cardValue[0];
+            // award points
+            if (cardType == '1' ||
+                cardType == 'J' ||
+                cardType == 'Q' ||
+                cardType == 'K'
+            ) {
                 handVal += 10;
             }
-            if (type == 'A') {
-                // aceCounter... nice!
+            // aceCounter... nice!?
+            if (cardType == 'A') {
                 handVal += 11;
                 ++aceCount;
             }
-            if (isdigit(type) && (type != '1')) {
-                // catch edge case
-                handVal += (type -'0');
+            // catch all other numbers
+            if (isdigit(cardType) && (cardType != '1')) {
+                handVal += (cardType - '0');
             }
         }
+        // subtract aces from count
         while (aceCount--) {
             if (handVal > 21) {
                 handVal -= 10;
@@ -147,6 +189,8 @@ int Game::handValue(char plyr) {
         return handVal;
     }
 }
+
+// deal a card to x player
 void Game::addToHand(char plyr) {
     deal(1, plyr);
 }
